@@ -2,15 +2,26 @@ const fileTag = document.getElementById("filetag"),
     preview = document.getElementById("preview"),
     uploadButton = document.getElementById("upload"),
     dimensions = document.getElementById("dimensions"),
+    responseDiv = document.getElementById("response"),
     form = document.querySelector('form');
-
+// Overrides the default form submit behavior which redirects to the actions page
+// Here we want to to Ajax request
+function handleSubmit(event) {
+    event.preventDefault();
+    upload();
+}
 form.addEventListener('submit', handleSubmit);
+
+/**
+ * Timer 
+ */
 var timerVar;
+
 var totalSeconds = 0;
 
 function countTimer() {
     ++totalSeconds;
-    
+
     var hour = Math.floor(totalSeconds / 3600);
     var minute = Math.floor((totalSeconds - hour * 3600) / 60);
     var seconds = totalSeconds - (hour * 3600 + minute * 60);
@@ -24,16 +35,6 @@ function countTimer() {
     document.getElementById("timer").innerHTML = hour + ":" + minute + ":" + seconds;
 }
 
-
-function handleSubmit(event) {
-    event.preventDefault();
-    upload();
-}
-
-fileTag.addEventListener("change", function () {
-    changeImage(this);
-});
-
 function changeImage(input) {
     var reader;
 
@@ -45,12 +46,8 @@ function changeImage(input) {
             var src = reader.result;
             avatarImg.src = src;
             avatarImg.onload = function () {
-                //preview.setAttribute('src', e.target.result);
                 var ctx = preview.getContext("2d");
                 ctx.reset();
-
-                // ctx.canvas.width = 1000;
-                // ctx.canvas.height = 1000 * avatarImg.height / avatarImg.width;
 
                 var factor = Math.min(1000 / avatarImg.width, 1000 / avatarImg.height);
                 ctx.scale(factor, factor);
@@ -64,37 +61,39 @@ function changeImage(input) {
     }
 }
 
+fileTag.addEventListener("change", function () {
+    changeImage(this);
+});
+
 function callback(response) {
     console.log(response);
+    responseDiv.innerHTML = response;
     var ctx = preview.getContext("2d");
     ctx.beginPath();
     const dims = JSON.parse(response).bounding_box
-
-    ctx.rect(dims[0], dims[1], dims[2]-dims[0], dims[3]-dims[1]);
+    ctx.strokeStyle = 'Red';
+    ctx.lineWidth = 5;
+    ctx.rect(dims[0], dims[1], dims[2] - dims[0], dims[3] - dims[1]);
     ctx.stroke();
-    uploadButton.disabled=false;
-    uploadButton.innerText='Upload';
+    uploadButton.disabled = false;
+    uploadButton.innerText = 'Upload';
     clearInterval(timerVar);
 }
 
 function upload() {
-    var picture = document.getElementById('preview');
-
-    picture.toBlob(function (blob) {
-        const form = document.querySelector('form');
-        const data = new FormData(form);
-
-        //formData.append("image", blob, { type: 'application/octet-stream' });
-        var xhr = new XMLHttpRequest;
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-              callback(xhr.response);
-            }
-          };
-        xhr.open("POST", "/upload");
-        xhr.send(data);
-        uploadButton.disabled=true;
-        uploadButton.innerText='Processing';
-        timerVar = setInterval(countTimer, 1000);
-    }, "image/png");
+    const form = document.querySelector('form');
+    const data = new FormData(form);
+    //TODO Move to Axios for cleaner code 
+    var xhr = new XMLHttpRequest;
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+            callback(xhr.response);
+        }
+    };
+    xhr.open("POST", "/upload");
+    xhr.send(data);
+    uploadButton.disabled = true;
+    uploadButton.innerText = 'Processing';
+    totalSeconds = 0;
+    timerVar = setInterval(countTimer, 1000);
 }

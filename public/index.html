@@ -3,12 +3,17 @@
     <script src="preview.js" defer></script>
 </head>
 <body>
+    <h3>This is a demo page for using Gemini Vision Pro Model to predict the section to crop the a bird from a photo containing a single bird.</h3>
     <form id="imgForm" enctype="multipart/form-data">
         <input name="file" type="file" id="filetag">
         <input name=dimensions type="hidden" id="dimensions">
         <button id="upload" type="submit">Upload</button>
     </form>
-    <div id="timer"></div>
+    Time Since Request -  <div id="timer"></div>
+    <hr>
     <canvas width="1000" height="1000" id="preview"></canvas>
+    <hr>
+    <label for="response">Gemini Response</label>
+    <div id="response"></div>
 </body>
 </html>
