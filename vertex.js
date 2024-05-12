@@ -46,12 +46,14 @@ class Vertex {  // Initialize Vertex with your Cloud project and location
             }
         };
 
+        const promotText = `Give the co-ordinates of the cropped to the bird  and name of the bird of given the original size is ` + dimensions.w + `×` + dimensions.h + ` pixels
+        Response in JSON with bounding box array attribute `;
+        console.log(`Promt Text `+ promotText);
         const request = {
             contents: [
                 {
                     role: 'user', parts: [{
-                        text: `Given co-ordinates of the cropped to the bird  and name of the image given the original size is ` + dimensions.w + `×` + dimensions.h + ` pixels
-            Response in JSON with bounding box array attribute `}, image1]
+                        text: promotText}, image1]
                 }
             ],
         };
@@ -60,14 +62,15 @@ class Vertex {  // Initialize Vertex with your Cloud project and location
         // const result = await generativeModel.generateContent(request);
         // const response = result.response;
         // console.log('Response: ', JSON.stringify(response));
-
+        console.log('Requesting Gemini '+model);
         const streamingResult = await generativeModel.generateContentStream(request);
         const contentResponse = await streamingResult.response;
+        console.log('Response obtained from Gemini '+ JSON.stringify(contentResponse.usageMetadata));
         const markDown = contentResponse.candidates[0].content.parts[0].text;
-        console.log(markDown);
+        //console.log(markDown);
         //Strip th emarkdown to only have the JSON string.
         const json = markDown.substring(9, markDown.length - 3);
-        console.log(json);
+        console.log(JSON.stringify(json));
         return json;
     }
 }

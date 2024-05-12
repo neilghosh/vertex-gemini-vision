@@ -20,9 +20,9 @@ app.get("/test", (req, res) => {
 });
 
 app.post("/upload", async (req, res) => {
-  console.log(req.files);
+  console.log(`File received of size `+ req.files.file.size );
+  console.log(`Original Dimensions received `+req.body.dimensions)
   const dimensions = JSON.parse(req.body.dimensions);
-  console.log(dimensions)
   const vertex = new Vertex();
   result = await vertex.generateContent(req.files.file.data, dimensions);
   res.send(result);
