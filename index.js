@@ -7,7 +7,7 @@ const app = express();
 
 app.use(fileupload());
 
-const port = process.env.PORT || 4051;
+const port = parseInt(process.env.PORT) || 4051;
 
 //app.use('/',express.static('public'))
 app.use(express.static(__dirname + '/public'));
